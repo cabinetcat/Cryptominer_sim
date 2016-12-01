@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+
 
 namespace cryptocurrency_simulator
 {
@@ -11,7 +11,7 @@ namespace cryptocurrency_simulator
         static int cash = 0;
 
         static int[] poolnums = new int[5];
-        static int[] ghznums = new int[5];
+        static double[] ghznums = new double[5];
         static void Main(string[] args)
         {
 
@@ -19,18 +19,24 @@ namespace cryptocurrency_simulator
             string getdatefromfile = readfromfile.Substring(0,21);
             var start = DateTime.Now;
             var oldDate = DateTime.Parse(getdatefromfile);
-
+            // check if the date contained in the SID is within 12 hours of the current time.
             if (start.Subtract(oldDate) >= TimeSpan.FromHours(12))
             {
-                Console.WriteLine(sessionID());
+                //generate new session id
+                Console.WriteLine("New session ID generated!");
+                sessionID();
             }
+                
             else
             {
-                string poolsfromfile = readfromfile.Substring(readfromfile.IndexOf("%"), 10);
-                for (int i = 0; i < 5; i++)
-                {
-
-                }
+                //read from the SID to get & set the data
+                
+                string poolsfromfile = readfromfile.Substring(readfromfile.IndexOf("%") + 1, 9);
+                string ghznumsfromfile = readfromfile.Substring(readfromfile.IndexOf("&") + 1, 21);
+                poolnums = poolsfromfile.Split(',').Select(n => Convert.ToInt32(n)).ToArray();
+                ghznums = ghznumsfromfile.Split(',').Select(n => Convert.ToDouble(n)).ToArray();
+               
+                
             }
 
 
@@ -62,14 +68,15 @@ namespace cryptocurrency_simulator
             
             while (numbers.Count < 5)
             {
-                numbers.Add(rrr.Next(10));
+                numbers.Add(rrr.Next(9));
             }
             fullstring[1] = "%" + string.Join(",", numbers);
             fullstring[2] = "&";
               for (int i = 0; i < 5; i++)   
               {
+
                   double mint = RNG(i + 1)/1000;
-                  fullstring [2] += "/ " + Math.Truncate(100 * mint) / 100;
+                  fullstring[2] += Math.Truncate(100 * mint) / 100 + ",";
               }
              string FINAL = String.Join("|", fullstring);
              System.IO.File.WriteAllText(@"C:\Temp\ccs_sid.txt", FINAL);
